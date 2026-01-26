@@ -42,4 +42,12 @@ public interface EmployeeMapper {
      * @param employee 员工实体类
      */
     void update(Employee employee);
+
+     /**
+      * 根据ID查询员工
+      * @param id 员工ID
+      * @return 员工实体类
+      */
+    @Select("select * from employee where id = #{id}")
+    Employee getById(Long id);
 }

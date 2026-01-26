@@ -103,6 +103,19 @@ public class EmployeeController {
     }
 
     /**
+     * 根据ID查询员工
+     * @param id 员工ID
+     * @return 员工实体类
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("根据ID查询员工")
+    public Result<Employee> getById(@PathVariable Long id) {
+        log.info("根据ID查询员工：{}", id);
+        Employee employee = employeeService.getById(id);
+        return Result.success(employee);
+    }
+
+    /**
      * 根据ID修改员工状态
      * @param status 员工状态
      * @param id 员工ID
@@ -113,6 +126,19 @@ public class EmployeeController {
     public Result updateStatus(@PathVariable Integer status, @RequestParam Long id) {
         log.info("启用/禁用员工账号：{}，{}", status, id);
         employeeService.startOrStop(status, id);
+        return Result.success();
+    }
+
+    /**
+     * 更新员工信息
+     * @param employeeDTO 员工实体类
+     * @return 成功提示
+     */
+    @PutMapping
+    @ApiOperation("更新员工信息")
+    public Result update(@RequestBody EmployeeDTO employeeDTO) {
+        log.info("更新员工信息：{}", employeeDTO);
+        employeeService.update(employeeDTO);
         return Result.success();
     }
 
