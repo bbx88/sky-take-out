@@ -53,6 +53,13 @@ sky:
   wechat:
     appid: ${sky.weixin.appid}
     secret: ${sky.weixin.secret}
+    mchid: ${sky.weixin.mchid}
+    mch-serial-no: ${sky.weixin.mch-serial-no}
+    private-key-file-path: ${sky.weixin.private-key-file-path}
+    api-v3-key: ${sky.weixin.api-v3-key}
+    we-chat-pay-cert-file-path: ${sky.weixin.we-chat-pay-cert-file-path}
+    notify-url: ${sky.weixin.notify-url}
+    refund-notify-url: ${sky.weixin.refund-notify-url}
 
   alioss:
     endpoint: ${sky.alioss.endpoint}
