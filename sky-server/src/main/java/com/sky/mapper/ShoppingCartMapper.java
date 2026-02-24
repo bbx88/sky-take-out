@@ -36,10 +36,18 @@ public interface ShoppingCartMapper {
             "values ( #{name}, #{userId}, #{dishId}, #{setmealId}, #{dishFlavor}, #{number}, #{amount}, #{image}, #{createTime})")
     void insert(ShoppingCart shoppingCart);
 
-     /**
-      * 根据用户id清空购物车
-      * @param userId
-      */
-     @Delete("delete from shopping_cart where user_id = #{userId}")
+    /**
+     * 根据用户id清空购物车
+     *
+     * @param userId
+     */
+    @Delete("delete from shopping_cart where user_id = #{userId}")
     void deleteByUserId(Long userId);
+
+     /**
+      * 批量新增购物车
+      *
+      * @param shoppingCartList
+      */
+    void insertBatch(List<ShoppingCart> shoppingCartList);
 }

@@ -55,4 +55,48 @@ public class OrderController {
         return Result.success(orderPaymentVO);
     }
 
+    /**
+     * 历史订单查询
+     *
+     * @param page
+     * @param pageSize
+     * @param status
+     * @return
+     */
+    @GetMapping("/historyOrders")
+    @ApiOperation("历史订单查询")
+    public Result<PageResult> page(int page,int pageSize,Integer status){
+        log.info("历史订单查询：{},{},{}",page,pageSize,status);
+        PageResult pageResult=orderService.pageQuery(page,pageSize,status);
+        return Result.success(pageResult);
+    }
+    /**
+     * 根据订单id查询订单明细
+     * @param id
+     * @return
+     */
+    @GetMapping("/orderDetail/{id}")
+    @ApiOperation("查询订单详情")
+    public Result<OrderVO> getByOrderId(@PathVariable Long id){
+        log.info("查询订单详情：{}",id);
+        OrderVO orderVO=orderService.details(id);
+        return Result.success(orderVO);
+    }
+
+    @PutMapping("/cancel/{id}")
+    @ApiOperation("取消订单")
+    public Result cancel(@PathVariable Long id) throws Exception {
+        log.info("取消订单：{}",id);
+        orderService.userCancelById(id);
+        return Result.success();
+    }
+
+    @PostMapping("/repetition/{id}")
+    @ApiOperation("再来一单")
+    public Result repetition(@PathVariable Long id){
+        log.info("再来一单：{}",id);
+        orderService.repetition(id);
+        return Result.success();
+    }
+
 }

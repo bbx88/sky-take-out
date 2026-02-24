@@ -66,3 +66,9 @@ sky:
     access-key-id: ${sky.alioss.access-key-id}
     access-key-secret: ${sky.alioss.access-key-secret}
     bucket-name: ${sky.alioss.bucket-name}
+
+  baidu:
+    ak: ${sky.baidu.ak}
+
+  shop:
+    address: ${sky.shop.address}
