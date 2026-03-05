@@ -16,12 +16,14 @@ import java.util.Map;
 public interface OrderMapper {
     /**
      * 插入订单数据
+     *
      * @param order
      */
     void insert(Orders order);
 
     /**
      * 根据订单号查询订单
+     *
      * @param orderNumber
      */
     @Select("select * from orders where number = #{orderNumber}")
@@ -29,12 +31,14 @@ public interface OrderMapper {
 
     /**
      * 修改订单信息
+     *
      * @param orders
      */
     void update(Orders orders);
 
     /**
      * 分页查询订单
+     *
      * @param ordersPageQueryDTO
      * @return
      */
@@ -42,6 +46,7 @@ public interface OrderMapper {
 
     /**
      * 根据订单id查询订单
+     *
      * @param id
      * @return
      */
@@ -50,6 +55,7 @@ public interface OrderMapper {
 
     /**
      * 根据状态统计订单数量
+     *
      * @param status
      * @return
      */
@@ -58,8 +64,34 @@ public interface OrderMapper {
 
     /**
      * 根据状态和时间查询订单数量
+     *
      * @param status
      */
     @Select("select * from orders where status = #{status} and order_time < #{orderTime}")
     List<Orders> getByStatusAndOrderTime(Integer status, LocalDateTime orderTime);
+
+    /**
+     * 根据条件统计营业额
+     *
+     * @param map
+     * @return
+     */
+    Double subByMap(Map map);
+
+    /**
+     * 根据条件统计订单数量
+     *
+     * @param map
+     * @return
+     */
+    Integer countByMap(Map map);
+
+    /**
+     * 根据条件查询菜品销量排名Top10
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    List<GoodsSalesDTO> getSalesTop10(LocalDateTime begin, LocalDateTime end);
 }
