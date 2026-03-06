@@ -5,15 +5,20 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.SalesTop10ReportVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.service.WorkspaceService;
+import com.sky.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,6 +36,8 @@ public class ReportServiceImpl implements ReportService {
     private OrderMapper orderMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private WorkspaceService workspaceService;
 
     /**
      * 营业额统计
@@ -57,7 +64,7 @@ public class ReportServiceImpl implements ReportService {
             map.put("beginTime", beginTime);
             map.put("endTime", endTime);
             map.put("status", Orders.COMPLETED);
-            Double turnover = orderMapper.subByMap(map);
+            Double turnover = orderMapper.sumByMap(map);
             turnover = turnover == null ? 0.0 : turnover;
             turnoverList.add(turnover);
         }
@@ -147,6 +154,16 @@ public class ReportServiceImpl implements ReportService {
         return new OrderReportVO(dateListStr, orderCountListStr, validOrderCountListStr,totalOrderCount,validOrderCount,orderCompletionRate);
     }
 
+    private Integer getOrderCount(LocalDateTime begin, LocalDateTime end,Integer status) {
+        Map map = new HashMap<>();
+        map.put("beginTime", begin);
+        map.put("endTime", end);
+        map.put("status", status);
+        Integer orderCount = orderMapper.countByMap(map);
+        orderCount = orderCount == null ? 0 : orderCount;
+        return orderCount;
+    }
+
     /**
      * 菜品销量排名Top10
      *
@@ -169,13 +186,49 @@ public class ReportServiceImpl implements ReportService {
 
     }
 
-    private Integer getOrderCount(LocalDateTime begin, LocalDateTime end,Integer status) {
-        Map map = new HashMap<>();
-        map.put("beginTime", begin);
-        map.put("endTime", end);
-        map.put("status", status);
-        Integer orderCount = orderMapper.countByMap(map);
-        orderCount = orderCount == null ? 0 : orderCount;
-        return orderCount;
+    /**
+     * 导出运营数据报表
+     *
+     * @param response
+     */
+    @Override
+    public void exportBussnissData(HttpServletResponse response) {
+        LocalDate begin = LocalDate.now().minusDays(30);
+        LocalDate end = LocalDate.now().minusDays(1);
+        BusinessDataVO businessDataVO = workspaceService.getBusinessData(begin.atTime(LocalTime.MIN), end.atTime(LocalTime.MAX));
+        InputStream in= this.getClass().getClassLoader().getResourceAsStream("template/运营数据报表模板.xlsx");
+        try{
+            XSSFWorkbook excel = new XSSFWorkbook(in);
+            XSSFSheet sheet = excel.getSheet("Sheet1");
+            sheet.getRow(1).getCell(1).setCellValue("时间"+begin + "至" + end);
+
+            sheet.getRow(3).getCell(2).setCellValue(businessDataVO.getTurnover());
+            sheet.getRow(3).getCell(4).setCellValue(businessDataVO.getOrderCompletionRate());
+            sheet.getRow(3).getCell(6).setCellValue(businessDataVO.getNewUsers());
+
+            sheet.getRow(4).getCell(2).setCellValue(businessDataVO.getValidOrderCount());
+            sheet.getRow(4).getCell(4).setCellValue(businessDataVO.getUnitPrice());
+
+            for(int i=0;i<30;i++){
+                LocalDate date = begin.plusDays(i);
+                BusinessDataVO businessDataVO1 = workspaceService.getBusinessData(date.atTime(LocalTime.MIN), date.atTime(LocalTime.MAX));
+                XSSFRow row = sheet.getRow(7+i);
+                row.getCell(1).setCellValue(date.toString());
+                row.getCell(2).setCellValue(businessDataVO1.getTurnover());
+                row.getCell(3).setCellValue(businessDataVO1.getValidOrderCount());
+                row.getCell(4).setCellValue(businessDataVO1.getOrderCompletionRate());
+                row.getCell(5).setCellValue(businessDataVO1.getUnitPrice());
+                row.getCell(6).setCellValue(businessDataVO1.getNewUsers());
+            }
+
+            ServletOutputStream out = response.getOutputStream();
+            excel.write(out);
+
+            out.close();
+            excel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

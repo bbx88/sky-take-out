@@ -6,7 +6,6 @@ import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
-import org.aspectj.weaver.ast.Or;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -76,7 +75,7 @@ public interface OrderMapper {
      * @param map
      * @return
      */
-    Double subByMap(Map map);
+    Double sumByMap(Map map);
 
     /**
      * 根据条件统计订单数量
